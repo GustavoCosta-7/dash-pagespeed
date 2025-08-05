@@ -1,0 +1,15 @@
+[build]
+  # Diretório onde estão os arquivos do frontend (index.html, etc.)
+  publish = "."
+  # Comando para instalar as dependências do Python
+  command = "pip install -r requirements.txt"
+
+[functions]
+  # Diretório onde estão as funções serverless (sua API)
+  directory = "api/"
+
+[[redirects]]
+  # Redireciona todas as chamadas /api/* para a nossa função Python
+  from = "/api/*"
+  to = "/.netlify/functions/api/:splat"
+  status = 200

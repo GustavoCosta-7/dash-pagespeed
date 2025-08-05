@@ -1,0 +1,8 @@
+# Salve este conteúdo como: requirements.txt
+# (Lista de dependências do Python)
+
+Flask
+Flask-Cors
+Pillow
+pandas
+requests

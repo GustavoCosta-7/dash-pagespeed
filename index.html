@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard de Ferramentas de Mídia com IA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        #log-output {
+            font-family: 'Courier New', Courier, monospace;
+            white-space: pre-wrap;
+            word-break: break-all;
+            background-color: #1f2937; /* bg-gray-800 */
+            color: #d1d5db; /* text-gray-300 */
+            padding: 1rem;
+            border-radius: 0.5rem;
+            height: 300px;
+            overflow-y: auto;
+        }
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        input[type="file"] {
+            display: none;
+        }
+        .file-input-label {
+            cursor: pointer;
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background-color: #4f46e5; /* bg-indigo-600 */
+            color: white;
+            border-radius: 0.375rem;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+        .file-input-label:hover {
+            background-color: #4338ca; /* bg-indigo-700 */
+        }
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border-left-color: #fff;
+            animation: spin 1s ease infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <div class="container mx-auto p-4 sm:p-6 lg:p-8 max-w-5xl">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl sm:text-4xl font-bold text-gray-900">Dashboard de Ferramentas de Mídia</h1>
+            <p class="mt-2 text-lg text-gray-600">Sua central de automação para tarefas de mídia, agora na web e com o poder da IA.</p>
+        </header>
+
+        <div class="mb-6 bg-white p-2 rounded-lg shadow-sm flex flex-wrap justify-center gap-2">
+            <button id="btn-tab-downloads" class="tab-btn flex-grow sm:flex-grow-0 px-4 py-2 text-sm font-semibold rounded-md focus:outline-none transition-colors duration-200 bg-indigo-600 text-white">Downloads</button>
+            <button id="btn-tab-processing" class="tab-btn flex-grow sm:flex-grow-0 px-4 py-2 text-sm font-semibold rounded-md focus:outline-none transition-colors duration-200 bg-gray-200 text-gray-700">Processamento e Ferramentas</button>
+            <button id="btn-tab-reports" class="tab-btn flex-grow sm:flex-grow-0 px-4 py-2 text-sm font-semibold rounded-md focus:outline-none transition-colors duration-200 bg-gray-200 text-gray-700">Relatórios</button>
+        </div>
+
+        <main class="bg-white p-6 rounded-lg shadow-md min-h-[400px]">
+            <div id="tab-downloads" class="tab-content space-y-8">
+                <section>
+                    <h2 class="text-xl font-semibold border-b pb-2 mb-4">1. Baixar Banners da Home (de HTML)</h2>
+                    <p class="text-gray-600 mb-4">Selecione os arquivos HTML (desktop e mobile) para baixar os banners contidos neles. Os banners serão salvos em um arquivo .zip.</p>
+                    <div class="flex flex-wrap gap-4 mb-4">
+                        <div>
+                            <label for="html-desktop-input" class="file-input-label">Selecionar HTML Desktop</label>
+                            <input type="file" id="html-desktop-input" accept=".html,.htm,.txt">
+                            <span id="html-desktop-filename" class="ml-2 text-gray-500">Nenhum arquivo selecionado</span>
+                        </div>
+                        <div>
+                            <label for="html-mobile-input" class="file-input-label">Selecionar HTML Mobile</label>
+                            <input type="file" id="html-mobile-input" accept=".html,.htm,.txt">
+                            <span id="html-mobile-filename" class="ml-2 text-gray-500">Nenhum arquivo selecionado</span>
+                        </div>
+                    </div>
+                    <button id="btn-download-banners" class="px-6 py-2 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition-colors">Iniciar Download de Banners</button>
+                </section>
+
+                <section>
+                    <h2 class="text-xl font-semibold border-b pb-2 mb-4">2. Baixar Fotos de Produtos (de CSV)</h2>
+                    <p class="text-gray-600 mb-4">Selecione um arquivo CSV com as colunas 'sku' e 'images' para baixar todas as fotos de produtos para um arquivo .zip.</p>
+                    <div>
+                        <label for="csv-input" class="file-input-label">Selecionar Arquivo CSV</label>
+                        <input type="file" id="csv-input" accept=".csv">
+                        <span id="csv-filename" class="ml-2 text-gray-500">Nenhum arquivo selecionado</span>
+                    </div>
+                    <button id="btn-download-products" class="mt-4 px-6 py-2 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition-colors">Iniciar Download de Produtos</button>
+                </section>
+            </div>
+
+            <div id="tab-processing" class="tab-content space-y-8 hidden">
+                <section>
+                    <h2 class="text-xl font-semibold border-b pb-2 mb-4">3. Comprimir Imagens e Gerar Relatório</h2>
+                    <p class="text-gray-600 mb-4">Selecione uma pasta com imagens para otimizá-las. As imagens comprimidas e um relatório detalhado serão salvos em um arquivo .zip.</p>
+                     <div>
+                        <label for="compress-folder-input" class="file-input-label">Selecionar Pasta de Imagens</label>
+                        <input type="file" id="compress-folder-input" webkitdirectory directory multiple>
+                        <span id="compress-foldername" class="ml-2 text-gray-500">Nenhuma pasta selecionada</span>
+                    </div>
+                    <button id="btn-compress-images" class="mt-4 px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors">Iniciar Compressão</button>
+                </section>
+
+                <section>
+                    <h2 class="text-xl font-semibold border-b pb-2 mb-4">4. Separar Arquivos Grandes</h2>
+                    <p class="text-gray-600 mb-4">Selecione uma pasta e defina um tamanho. A ferramenta criará dois arquivos .zip: um com os arquivos maiores que o tamanho definido e outro com os menores.</p>
+                    <div class="flex items-center gap-4 mb-4">
+                        <label for="separator-folder-input" class="file-input-label">Selecionar Pasta</label>
+                        <input type="file" id="separator-folder-input" webkitdirectory directory multiple>
+                        <span id="separator-foldername" class="ml-2 text-gray-500">Nenhuma pasta selecionada</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <label for="separator-size-input" class="font-medium">Tamanho mínimo (KB):</label>
+                        <input type="number" id="separator-size-input" value="1024" class="w-24 p-2 border border-gray-300 rounded-md">
+                    </div>
+                    <button id="btn-separate-files" class="mt-4 px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors">Iniciar Separação</button>
+                </section>
+            </div>
+
+            <div id="tab-reports" class="tab-content space-y-8 hidden">
+                <section>
+                    <h2 class="text-xl font-semibold border-b pb-2 mb-4">5. Relatório de Banners da Home</h2>
+                    <p class="text-gray-600 mb-4">Gera um relatório detalhado de banners e, em seguida, permite usar IA para analisar e obter sugestões de otimização.</p>
+                    <div>
+                        <label for="report-banners-folder-input" class="file-input-label">Selecionar Pasta de Banners</label>
+                        <input type="file" id="report-banners-folder-input" webkitdirectory directory multiple>
+                        <span id="report-banners-foldername" class="ml-2 text-gray-500">Nenhuma pasta selecionada</span>
+                    </div>
+                    <button id="btn-report-banners" class="mt-4 px-6 py-2 bg-purple-600 text-white font-semibold rounded-lg hover:bg-purple-700 transition-colors">Gerar Relatório de Banners</button>
+                </section>
+
+                <section>
+                    <h2 class="text-xl font-semibold border-b pb-2 mb-4">6. Relatório de Mídias de Produtos</h2>
+                    <p class="text-gray-600 mb-4">Gera um relatório sobre mídias e, em seguida, permite usar IA para analisar e obter sugestões de otimização.</p>
+                    <div>
+                        <label for="report-media-folder-input" class="file-input-label">Selecionar Pasta de Mídias</label>
+                        <input type="file" id="report-media-folder-input" webkitdirectory directory multiple>
+                        <span id="report-media-foldername" class="ml-2 text-gray-500">Nenhuma pasta selecionada</span>
+                    </div>
+                    <button id="btn-report-media" class="mt-4 px-6 py-2 bg-purple-600 text-white font-semibold rounded-lg hover:bg-purple-700 transition-colors">Gerar Relatório de Mídias</button>
+                </section>
+            </div>
+        </main>
+
+        <div class="mt-8">
+            <h2 class="text-2xl font-semibold mb-4 text-center">Status e Relatórios</h2>
+            <div id="log-output">Dashboard iniciado. Selecione uma função em uma das abas.</div>
+            <div class="flex justify-center items-center gap-4 mt-4">
+                 <button id="btn-clear-log" class="px-4 py-2 bg-gray-500 text-white font-semibold rounded-lg hover:bg-gray-600 transition-colors">Limpar Log</button>
+                 <button id="btn-download-log" class="px-4 py-2 bg-teal-600 text-white font-semibold rounded-lg hover:bg-teal-700 transition-colors hidden">Baixar Relatório (.txt)</button>
+                 <button id="btn-analyze-report" class="px-4 py-2 bg-gradient-to-r from-pink-500 to-violet-500 text-white font-semibold rounded-lg hover:from-pink-600 hover:to-violet-600 transition-all hidden flex items-center gap-2">
+                    <span id="ai-btn-text">✨ Analisar Relatório com IA</span>
+                    <div id="ai-spinner" class="spinner hidden"></div>
+                 </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js" defer></script>
+</body>
+</html>
