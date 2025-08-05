@@ -1,6 +1,6 @@
 # /api/api.py
 from flask import Flask, request, jsonify, send_file
-from flask_cors import CORS # 1. Importa a biblioteca CORS
+from flask_cors import CORS
 from PIL import Image, UnidentifiedImageError
 import io
 import zipfile
@@ -11,10 +11,11 @@ from urllib.parse import urlparse
 
 # Inicializa a aplicação Flask
 app = Flask(__name__)
-CORS(app) # 2. Ativa o CORS para toda a aplicação
+CORS(app)
 
 # --- Rota da API para Baixar Fotos de Produtos via CSV ---
-@app.route('/api/download-products', methods=['POST'])
+# Rota corrigida: Removido o prefixo '/api/'
+@app.route('/download-products', methods=['POST'])
 def download_products_api():
     """
     Recebe um arquivo CSV, baixa as imagens listadas e retorna um arquivo zip.
@@ -77,7 +78,8 @@ def download_products_api():
 
 
 # --- Rota da API para Comprimir Imagens ---
-@app.route('/api/compress', methods=['POST'])
+# Rota corrigida: Removido o prefixo '/api/'
+@app.route('/compress', methods=['POST'])
 def compress_images_api():
     """
     Recebe arquivos de imagem, comprime-os e retorna um arquivo zip
