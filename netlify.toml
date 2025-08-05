@@ -1,15 +1,27 @@
+# Arquivo de configuração para o Netlify
+
 [build]
-  # Diretório onde estão os arquivos do frontend (index.html, etc.)
-  publish = "."
-  # Comando para instalar as dependências do Python
+  # Comando que o Netlify executará para construir o projeto.
+  # Ele instalará as dependências Python listadas no requirements.txt.
   command = "pip install -r requirements.txt"
+  
+  # O diretório que contém os arquivos do seu site (frontend)
+  # para serem publicados. Como o index.html está na raiz, usamos ".".
+  publish = "."
 
 [functions]
-  # Diretório onde estão as funções serverless (sua API)
+  # O diretório onde o Netlify encontrará suas funções serverless (sua API Python).
   directory = "api/"
 
 [[redirects]]
-  # Redireciona todas as chamadas /api/* para a nossa função Python
+  # Esta é a regra mais importante.
+  # Ela diz ao Netlify para pegar qualquer requisição que comece com "/api/"...
   from = "/api/*"
+  
+  # ...e redirecioná-la para a função serverless chamada "api"
+  # que está dentro do diretório de funções. O ":splat" garante
+  # que o resto da URL (como /download-products) seja mantido.
   to = "/.netlify/functions/api/:splat"
+  
+  # O status 200 significa que a reescrita é interna, sem redirecionar o navegador.
   status = 200
