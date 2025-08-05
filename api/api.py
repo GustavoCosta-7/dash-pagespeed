@@ -13,9 +13,8 @@ from urllib.parse import urlparse
 app = Flask(__name__)
 CORS(app)
 
-# --- Rota da API para Baixar Fotos de Produtos via CSV ---
-# Rota corrigida: Removido o prefixo '/api/'
-@app.route('/download-products', methods=['POST'])
+
+@app.route('/api/download-products', methods=['POST'])
 def download_products_api():
     """
     Recebe um arquivo CSV, baixa as imagens listadas e retorna um arquivo zip.
